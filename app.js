@@ -7,8 +7,22 @@ app.get("/", (req, res) => {
     res.send("hey world");
 });
 
+app.options("/cells/:id", (req, res) => {
+    res.set({
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "POST",
+        "Access-Control-Allow-Headers": "Content-Type",
+    });
+    res.send();
+});
+
 app.post("/cells/:id", (req, res) => {
-    res.send(`post request to cell id hohoho ${req.params.id}`);
+    res.set({
+        "Access-Control-Allow-Origin": "*",
+    });
+    res.json({
+        data: `post request to cell id hohoho ${req.params.id}`,
+    });
 });
 
 app.listen(PORT, () => {
