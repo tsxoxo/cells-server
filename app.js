@@ -3,11 +3,13 @@ const PORT = 3000;
 
 const app = express();
 
+app.use(express.json()); // for parsing application/json
+
 app.get("/", (req, res) => {
     res.send("hey world");
 });
 
-app.options("/cells/:id", (req, res) => {
+app.options("/cells", (req, res) => {
     res.set({
         "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Methods": "POST",
@@ -16,12 +18,12 @@ app.options("/cells/:id", (req, res) => {
     res.send();
 });
 
-app.post("/cells/:id", (req, res) => {
+app.post("/cells", (req, res) => {
     res.set({
         "Access-Control-Allow-Origin": "*",
     });
     res.json({
-        data: `post request to cell id hohoho ${req.params.id}`,
+        data: req.body,
     });
 });
 
