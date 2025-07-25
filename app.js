@@ -22,14 +22,13 @@ app.post("/cells", (req, res) => {
     res.set({
         "Access-Control-Allow-Origin": "*",
     });
-    console.log("req.body: ", req.body);
-    console.log(
-        "req.body.payload[0].newCells[0]: ",
-        req.body.payload[0].newCells[0],
+    setTimeout(
+        () =>
+            res.json({
+                data: req.body.payload[0].newCells,
+            }),
+        2000,
     );
-    res.json({
-        data: req.body.payload[0].newCells,
-    });
 });
 
 app.listen(PORT, () => {
