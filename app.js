@@ -3,6 +3,8 @@ const PORT = 3000;
 
 const db = require("./db.js");
 
+const { Payload } = require("./schema.js");
+
 const app = express();
 
 app.use(express.json()); // for parsing application/json
@@ -10,6 +12,18 @@ app.use(express.json()); // for parsing application/json
 // DEBUG
 app.use((req, res, next) => {
     console.log(`${req.method} ${req.path}`);
+    next();
+});
+
+// Validation
+app.use((req, res, next) => {
+    const result = Payload.safeParse(req.body);
+    if (!result.success) {
+        result.error; // ZodError instance
+    } else {
+        result.data; // { username: string; xp: number }
+    }
+
     next();
 });
 
@@ -61,12 +75,12 @@ app.listen(PORT, () => {
 
 const process = require("node:process");
 process.on("SIGTERM", () => {
-    console.log("Received SIGTERM, shutting down gracefully");
+    console.log("\nReceived SIGTERM, shutting down gracefully");
     db.connection.close();
     process.exit(0);
 });
 process.on("SIGINT", () => {
-    console.log("Received SIGTERM, shutting down gracefully");
+    console.log("\nReceived SIGTERM, shutting down gracefully");
     db.connection.close();
     process.exit(0);
 });
