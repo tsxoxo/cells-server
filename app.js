@@ -1,30 +1,23 @@
 const express = require("express");
 const PORT = 3000;
 
-const db = require("better-sqlite3")("cells.db", { verbose: console.log });
-
-db.prepare(
-    `CREATE TABLE IF NOT EXISTS cells (
-  position INTEGER PRIMARY KEY,
-  content TEXT NOT NULL,
-  value TEXT,
-  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
-);`,
-).run();
-const create_row = db.prepare(
-    " INSERT INTO cells (position, content, value) VALUES (?, ?, ?) ",
-);
-const cell = db.prepare(" SELECT * FROM cells WHERE position = ? ");
+const db = require("./db.js");
 
 const app = express();
 
 app.use(express.json()); // for parsing application/json
 
+// DEBUG
+app.use((req, res, next) => {
+    console.log(`${req.method} ${req.path}`);
+    next();
+});
+
 app.get("/", (req, res) => {
     // TODO: Get the whole cells table
     // Probably process it to add a layer of indirection
     // and send Cell[] back to FE
-    res.send("hey world");
+    res.send("hey worldjasd");
 });
 
 app.options("/cells", (req, res) => {
@@ -40,6 +33,10 @@ app.post("/cells", (req, res) => {
     res.set({
         "Access-Control-Allow-Origin": "*",
     });
+
+    // what is the shape of req?
+    db.insertCell(12, "121212", "121212");
+    console.log("inserted");
 
     // START_HERE: forEach(cellInPayload => cell.get(cellInPayload.ownIndex))
     // if cellDB.content === cellPayload.oldContent then setToPayload, res(ok)
@@ -57,8 +54,19 @@ app.post("/cells", (req, res) => {
 
 app.listen(PORT, () => {
     console.log("Express.js listening on port ", PORT);
+}).on("error", (err) => {
+    console.error("Server failed to start:", err.message);
+    process.exit(1);
 });
 
 const process = require("node:process");
-process.on("SIGINT", () => db.close());
-process.on("SIGTERM", () => db.close());
+process.on("SIGTERM", () => {
+    console.log("Received SIGTERM, shutting down gracefully");
+    db.connection.close();
+    process.exit(0);
+});
+process.on("SIGINT", () => {
+    console.log("Received SIGTERM, shutting down gracefully");
+    db.connection.close();
+    process.exit(0);
+});
